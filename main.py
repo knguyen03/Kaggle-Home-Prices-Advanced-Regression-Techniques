@@ -11,4 +11,4 @@ import pandas as pd
 
 train = pd.read_csv("train.csv")
 
-#hello this is a new project
+#bonjour
