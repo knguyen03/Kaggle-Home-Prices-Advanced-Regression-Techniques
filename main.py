@@ -23,46 +23,49 @@ def create_dummies(df,column_name):
 train = create_dummies(train,"MSSubClass")
 holdout = create_dummies(holdout,"MSSubClass")
 
-lr = LinearRegression()
-
 columns = ["GrLivArea", "LotArea","1stFlrSF", "2ndFlrSF", "OverallQual",
            "OverallCond", "FullBath","HalfBath", "BedroomAbvGr", "TotRmsAbvGrd",
            "WoodDeckSF","OpenPorchSF","YearBuilt","YearRemodAdd"]
-
 all_X = train[columns]
 all_y = train['SalePrice'].reshape(1460,1)
+
+#split the training data set so we can test
 
 train_X, test_X, train_y, test_y = train_test_split(
         all_X, all_y, test_size=0.2,random_state=0)
 
+#train model using the train portion of the training data set
+
+lr = LinearRegression()
 lr.fit(train_X,train_y)
 
+#apply trained model to the test portion of the training data set
+
 pred = lr.predict(train_X)
+
+#output chart
 
 plt.plot(train_y)
 plt.plot(pred)
 plt.legend(['data','prediction'])
 plt.show()
 
+#train model using all of training data set
+
 realLr = LinearRegression()
 realLr.fit(all_X,all_y)
 
-all_X_holdout = holdout[columns]
+#apply trained model to test data set
 
+all_X_holdout = holdout[columns]
 holdout_predictions = realLr.predict(all_X_holdout).ravel()
+
+#write results to file
+
 holdout_ids = holdout["Id"]
 submission_df = { "Id": holdout_ids,"SalePrice": holdout_predictions}
-#s = pd.Series(holdout_predictions,name='SalePrice')
-#s.index.name = 'Id'
-
-#s.reset_index
 submission = pd.DataFrame.from_dict(submission_df)
 submission.to_csv('submission.csv',index=False)
-
-#plt.scatter(train_X,train_y)
-#plt.scatter(train_X,pred)
-#plt.legend(['data','fit line'])
-#plt.show()
 
     
     
