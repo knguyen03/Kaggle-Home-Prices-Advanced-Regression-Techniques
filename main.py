@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 
 train = pd.read_csv("train.csv")
 test = pd.read_csv("test.csv")
@@ -21,19 +22,28 @@ def create_dummies(df,column_name):
 
 train = create_dummies(train,"MSSubClass")
 test = create_dummies(test,"MSSubClass")
-
+#intialize LinearRegression object
 lr = LinearRegression()
 
-train_x = train["GrLivArea"].reshape(1460,1)
-train_y = train["SalePrice"].reshape(1460,1)
+columns = ["GrLivArea"]
 
-lr.fit(train_x,train_y)
+all_X = train[columns]
+all_y = train['SalePrice'].reshape(1460,1)
 
-pred = lr.predict(train_x)
+train_X, test_X, train_y, test_y = train_test_split(
+    all_X, all_y, test_size=0.2,random_state=0)
 
-plt.plot(train["SalePrice"])
+lr.fit(train_X,train_y)
+
+pred = lr.predict(train_X)
+
+plt.plot(train_y)
 plt.plot(pred)
 plt.legend(['data','prediction'])
+plt.show()
+plt.scatter(train_X,train_y)
+plt.scatter(train_X,pred)
+plt.legend(['data','fit line'])
 plt.show()
 
     
