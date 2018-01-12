@@ -13,30 +13,48 @@ import seaborn as sns
 from sklearn import linear_model
 from sklearn.model_selection import train_test_split
 
+#read data
+
 train = pd.read_csv("train.csv")
 holdout = pd.read_csv("test.csv")
+
+#get rid of outliers
+
 train = train[train.Id  != 186]
 train = train[train.Id  != 524]
 train = train[train.Id  != 1299]
+
+#create log terms
 train['OverallQual_log']=np.log(train['OverallQual'])
 train['YearBuilt_log']=np.log(train['YearBuilt'])
 holdout['OverallQual_log']=np.log(holdout['OverallQual'])
 holdout['YearBuilt_log']=np.log(holdout['YearBuilt'])
+
+#fill in some missing values
+
 holdout['GarageArea'].fillna(holdout['GarageArea'].mean(),inplace=True)
 holdout['TotalBsmtSF'].fillna(holdout['TotalBsmtSF'].mean(),inplace=True)
+
+#function to create dummies
 
 def create_dummies(df,column_name):
     dummies = pd.get_dummies(df[column_name],prefix=column_name)
     df = pd.concat([df,dummies],axis=1)
     return df
 
+#columns to create dummies for
+
 cols = ['MSZoning','Condition1','Neighborhood','Street','LotConfig','BldgType','CentralAir']
+
+#create dummies
+
 for c in cols:
     train = create_dummies(train, c)
     holdout = create_dummies(holdout, c)
 
-columns = ['OverallQual', 'GrLivArea', 'GarageArea', 'TotalBsmtSF','FullBath',
-           'YearBuilt',
+#coloumns to run regression on
+
+columns = ['OverallQual', 'GrLivArea', 'GarageArea', 'TotalBsmtSF','FullBath', 'YearBuilt',
            
            'MSZoning_C (all)', 'MSZoning_FV', 'MSZoning_RH', 'MSZoning_RL', 'MSZoning_RM',
            
@@ -50,18 +68,17 @@ columns = ['OverallQual', 'GrLivArea', 'GarageArea', 'TotalBsmtSF','FullBath',
            'Neighborhood_Somerst', 'Neighborhood_StoneBr', 'Neighborhood_Timber',
            'Neighborhood_Veenker',
            
-           'Condition1_Artery', 'Condition1_Feedr',
-           'Condition1_Norm', 'Condition1_PosA', 'Condition1_PosN','Condition1_RRAe', 'Condition1_RRAn', 'Condition1_RRNe',
-           'Condition1_RRNn',
+           'Condition1_Artery','Condition1_Feedr','Condition1_Norm',
+           'Condition1_PosA','Condition1_PosN','Condition1_RRAe',
+           'Condition1_RRAn','Condition1_RRNe','Condition1_RRNn',
            
-           'Street_Grvl', 'Street_Pave', 
+           'Street_Grvl','Street_Pave', 
            
-           'LotConfig_Corner', 'LotConfig_CulDSac', 'LotConfig_FR2', 
-           'LotConfig_FR3', 'LotConfig_Inside',
+           'LotConfig_Corner','LotConfig_CulDSac','LotConfig_FR2', 
+           'LotConfig_FR3','LotConfig_Inside',
            
-           'BldgType_1Fam', 'BldgType_2fmCon', 'BldgType_Duplex', 
-           'BldgType_Twnhs', 'BldgType_TwnhsE',
-           'CentralAir_N', 'CentralAir_Y'
+           'BldgType_1Fam','BldgType_2fmCon','BldgType_Duplex','BldgType_Twnhs','BldgType_TwnhsE',
+           'CentralAir_N','CentralAir_Y'
            ]
 
 all_X = train[columns]
